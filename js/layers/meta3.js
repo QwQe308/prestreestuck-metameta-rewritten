@@ -3,7 +3,7 @@ addLayer("mm", {
     symbol: "<img src='js/MindustryModPng_madeByMinxyzgo.png' style='width:calc(80%);height:calc(80%);margin:10%'></img>",
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
-        unlocked: true,
+        unlocked: false,
 		    points: new ExpantaNum(0),
 		    time: n(0),
     }},
