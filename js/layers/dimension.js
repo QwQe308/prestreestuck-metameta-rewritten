@@ -7,6 +7,7 @@ addLayer("dim", {
 		    points: new ExpantaNum(0),
 		    time: n(0),
 		    num:[null,zero,zero,zero,zero,zero,zero,zero,zero],
+		    currentMM:n(0)
     }},
     addontionalDim(x = player.mm.points){
       var dim = x.add(4)
@@ -56,8 +57,12 @@ addLayer("dim", {
         "buyables",
     ],
     update(diff){
+      if(!player.dim.currentMM.eq(player.mm.points)){
+        layerDataReset(this.layer)
+        player.dim.currentMM = player.mm.points
+      } 
       if(!this.layerShown()) return
-      var maxDim = this.addontionalDim().min(4).toNumber()
+      var maxDim = this.addontionalDim().max(4).toNumber()
       player.dim.num[maxDim] = player.dim.num[maxDim].add(diff)
       for(i=maxDim-1;i>=1;i--){
         player.dim.num[i] = player.dim.num[i].add(player.dim.num[i+1].mul(this.getDimMult(i+1)).mul(diff))
