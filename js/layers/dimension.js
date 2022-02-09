@@ -7,7 +7,9 @@ addLayer("dim", {
 		    points: new ExpantaNum(0),
 		    time: n(0),
 		    num:[null,zero,zero,zero,zero,zero,zero,zero,zero],
-		    currentMM:n(0)
+		    currentMM:n(0),
+		    
+		    c11:n(0),
     }},
     addontionalDim(x = player.mm.points){
       var dim = x.add(4)
@@ -17,7 +19,7 @@ addLayer("dim", {
       var mult = one
       mult = mult.mul(player.m.points.add(1).mul(player.m.time.add(1)).root(3).root(x**0.5))
       mult = mult.pow(buyableEffect('m',22))
-      if(this.addontionalDim().gte(8))mult = mult.pow(this.addontionalDim().div(8).sqrt())
+      if(this.addontionalDim().gte(8)) mult = mult.pow(this.addontionalDim().div(8).sqrt())
       mult = expRoot(mult,1.25)
       return mult
     },
@@ -54,21 +56,46 @@ addLayer("dim", {
         ["display-text", function(){if(layers.dim.addontionalDim().lt(8))return '';return `八维弦: x${format(layers.dim.getDimMult(8))} 弦产量x${format(layers.dim.getProcMult(8))}              数量：${format(player.dim.num[8])}` }],
         
         ["blank", "25px"],
-        "buyables",
+        "buyables","challenges",
     ],
     update(diff){
       if(!player.dim.currentMM.eq(player.mm.points)){
-        layerDataReset(this.layer)
+        doReset(this.layer,true)
         player.dim.currentMM = player.mm.points
       } 
       if(!this.layerShown()) return
       var maxDim = this.addontionalDim().max(4).toNumber()
-      player.dim.num[maxDim] = player.dim.num[maxDim].add(diff)
+      
+      var maxDimProcSpeed = one
+      if(hasAchievement('overflow',12)) maxDimProcSpeed = maxDimProcSpeed.mul(player.dim.num[1].add(10).log10())
+      
+      player.dim.num[maxDim] = player.dim.num[maxDim].add(maxDimProcSpeed.mul(diff))
       for(i=maxDim-1;i>=1;i--){
         player.dim.num[i] = player.dim.num[i].add(player.dim.num[i+1].mul(this.getDimMult(i+1)).mul(diff))
       }
       var proc = one
       for(i=maxDim;i>=1;i--) proc = proc.mul(this.getProcMult(i))
       player.dim.points = player.dim.points.add(proc)
+      
+      if(player[this.layer].activeChallenge != null){
+        player[this.layer]['c'+player[this.layer].activeChallenge] = player[this.layer]['c'+player[this.layer].activeChallenge].max(layers[this.layer].challenges[player[this.layer].activeChallenge].resource())
+      }
+    },
+    challenges:{
+      11:{
+        name:'时间膨胀',
+        challengeDescription:'元性质数量归零(可以重新获得),时间浓缩失效.*进入弦挑战保留你当前弦维度数量!',
+        rewardDescription(){return `当前最高${format(getCP(this.layer,11))},元元升级11底数x${format(this.rewardEffect())}`},
+        rewardEffect(){return expRoot(getCP(this.layer,11).div(1e80).add(1).root(49),1.5)},
+        goal:n('10{3}3'),
+        canComplete(){return false},
+        onEnter(){player.m.points = zero;player.points = zero;player.m.time = zero;player.dim.points = zero;player.m.resetTime=0},
+        resource(){return player.dim.points},
+        unlocked(){return hasAchievement('overflow',12)},
+      },
+    },
+    doReset(layer){
+      if(layer == this.layer || layers[layer].row > 1) layerDataReset(this.layer,['c11'])
+      if(layers[layer].row > 2) layerDataReset(this.layer,[])
     },
 })

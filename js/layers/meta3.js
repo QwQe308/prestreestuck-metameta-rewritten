@@ -5,7 +5,6 @@ addLayer("mm", {
     startData() { return {
         unlocked: true,
 		    points: new ExpantaNum(0),
-		    time: n(0),
     }},
     prestigeButtonText() { 
         return "超越以获得 <b>+" + formatWhole(this.getResetGain()) + `</b> 元元(总计元元:${formatWhole(player.mm.total)})` + ((this.getResetGain().gte(1000)) ? "" : ("<br/>下一个于 " + format(this.getNextAt()) + " 元性质"))
@@ -37,6 +36,7 @@ addLayer("mm", {
       //return n(1)
       if(player.mm.total.lt(5)) return n(1)
       var er = n(1.5).pow(player.mm.total.sub(3).root(5).sub(1))
+      if(hasAchievement('overflow',13)) er = n(1.06)
       return er
     },
     effectDescription() {
@@ -77,19 +77,49 @@ addLayer("mm", {
               if(!confirm('您确定要重置升级么?这会进行一次超越!')) return
               player.mm.upgrades = []
               player.mm.points = player.mm.total
-              //doReset(this.layer,true)
+              doReset(this.layer,true)
+            }
+        },
+        13: {
+            canClick(){return true},
+            display() {return `减少元元`},
+            onClick(){
+              if(!confirm('您确定要减少元元么?这会进行一次超越,并重置你的升级!这对你的进度可能没有任何作用!')) return
+              var toKeep = new OmegaNum(prompt('请输入您要保留的元元数.(自动向下取整)'))
+              if(toKeep.isNaN()){
+                alert('不能输入一个格式错误的数字!')
+                return
+              }
+              if(toKeep.gt(player.mm.total)){
+                alert('不能输入一个大于您目前元元的数字!')
+                return
+              }
+              if(toKeep.lt(0)){
+                alert('不能输入一个小于0的数字!')
+                return
+              }
+              player.mm.upgrades = []
+              player.mm.points = toKeep.floor()
+              player.mm.total = toKeep.floor()
+              doReset(this.layer,true)
             }
         },
     },
     upgrades:{
         11: {
             title: "<p style='transform: scale(-1, -1)'><alternate>二次加速</alternate>",
-            description: `时间速率x10^加速子效果^3.解锁升级12和21.`,
+            description(){return `时间速率x${format(this.effectBase())}^加速子效果^3.解锁升级12和21.`},
+            effectBase(){
+              var base = ten
+              base = base.mul(challengeEffect('dim',11))
+              return base
+            },
             effect(){
-              return n(10).pow(buyableEffect('m',22).pow(3))
+              var base = this.effectBase()
+              return base.pow(buyableEffect('m',22).pow(3))
             },
             effectDisplay(){
-              return `当前效果: x${format(upgradeEffect(this.layer,this.id))}`
+              return `x${format(upgradeEffect(this.layer,this.id))}`
             },
             cost: n(1),
             unlocked() { return player[this.layer].points.gte(1) || hasUpgrade(this.layer, this.id) },
@@ -101,7 +131,7 @@ addLayer("mm", {
               return layers.mm.effect2().pow(0.33)
             },
             effectDisplay(){
-              return `当前效果: 变为其${format(upgradeEffect(this.layer,this.id))}次根`
+              return `变为其${format(upgradeEffect(this.layer,this.id))}次根`
             },
             cost: n(1),
             unlocked() { return hasUpgrade(this.layer,11) || hasUpgrade(this.layer, this.id) },
@@ -125,7 +155,7 @@ addLayer("mm", {
               return player.mm.total.div(3)
             },
             effectDisplay(){
-              return `当前效果: + ${format(upgradeEffect(this.layer,this.id))} 元化元和加速子`
+              return `+ ${format(upgradeEffect(this.layer,this.id))} 元化元和加速子`
             },
             cost: n(2),
             unlocked() { return hasUpgrade(this.layer,22) || hasUpgrade(this.layer, this.id) },
@@ -137,7 +167,7 @@ addLayer("mm", {
               return layers.dim.effect().pow(2)
             },
             effectDisplay(){
-              return `当前效果: 时间速率x ${format(upgradeEffect(this.layer,this.id))}.`
+              return `时间速率x ${format(upgradeEffect(this.layer,this.id))}.`
             },
             cost: n(2),
             unlocked() { return hasUpgrade(this.layer,22) || hasUpgrade(this.layer, this.id) },

@@ -7,6 +7,7 @@ addLayer("m", {
 		    points: new ExpantaNum(0),
 		    time: n(0),
 		    buyableCostRoot: n(1),
+		    c11: n(0)
     }},
     prestigeButtonText() { 
         return "飞升以获得 <b>+" + formatWhole(this.getResetGain()) + "</b> 元性质" + ((this.getResetGain().gte(1000)) ? "" : ("<br/>下一个于 " + format(this.getNextAt()) + " 点数"))
@@ -24,7 +25,6 @@ addLayer("m", {
         return ten.tetr(expPow(this.getResetGain().add(1).pow(layers.mm.effect2()).add(10),this.gainExpRoot()).sub(10).div(mult).root(pow).root(0.4)).sub(1).mul(2)
     },
     effect(){
-      
       var metaBoost = player[this.layer].points.add(2)
       if(player.m.buyables[23].gt(0) && !hasUpgrade('mm',13)) metaBoost = metaBoost.pow(buyableEffect('m',11)).pow(buyableEffect('m',14))
       metaBoost = expPow(metaBoost,buyableEffect('m',23))
@@ -33,8 +33,12 @@ addLayer("m", {
       timeBoost = timeBoost.add(1).pow(buyableEffect("m",11)).sub(1)
       
       var tetrate = metaBoost.pow(timeBoost).add(1).log(10)
-      var finalValue = metaBoost.add(1).tetr(tetrate).min('10{2}1e308')
-      return finalValue
+      var finalValue = metaBoost.add(1).tetr(tetrate)
+      var maxValue = n('10{2}1.8e308')
+      
+      finalValue = ten.tetr(finalValue.add(1).slog(10).root(layers.overflow.effect1()))
+      
+      return finalValue.min(maxValue)
     },
     effectDescription() {
         eff = this.effect();
@@ -50,11 +54,14 @@ addLayer("m", {
         mult = new ExpantaNum(1)
         mult = mult.mul(buyableEffect('m',13))
         mult = mult.mul(layers.dim.effect())
+        if(hasAchievement('overflow',11)) mult = mult.mul(10)
+        mult = mult.mul(challengeEffect('m',11))
         return mult
     },
     gainExp() {
       var exp = n(1)
       exp = exp.mul(buyableEffect('m',14))
+      exp = exp.mul(layers.overflow.effect2())
       return exp
     },
     gainExpRoot() {
@@ -81,7 +88,6 @@ addLayer("m", {
         11: {
             cost(x = getBuyableAmount('m',this.id)) { 
               return four.pow((expRoot(x.add(10),0.5)).sub(10)).mul(100).root(player.m.buyableCostRoot)
-              
             },
             effect(x = getBuyableAmount('m',this.id)) { 
               x = x.add(this.extraLevel())
@@ -102,9 +108,12 @@ addLayer("m", {
                     价格: ${format(this.cost())} 元性质`
             },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
+                if(!hasAchievement('overflow',11)) player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            unlocked(){return true},
+            abtick:0,
+            abdelay(){return hasAchievement('overflow',14)?0:1.79e308},
         },
           12: {
             cost(x = getBuyableAmount('m',this.id)) { 
@@ -130,10 +139,14 @@ addLayer("m", {
                     价格: ${format(this.cost())} 元性质`
             },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
+              if(getBuyableAmount(this.layer,this.id).gte(this.purchaseLimit())) return
+                if(!hasAchievement('overflow',11)) player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
             purchaseLimit(){return n(15).add(layers.mm.effect3())},
+            unlocked(){return true},
+            abtick:0,
+            abdelay(){return hasAchievement('overflow',14)?0:1.79e308},
         },
         13: {
             cost(x = getBuyableAmount('m',this.id)) { 
@@ -159,9 +172,12 @@ addLayer("m", {
                     价格: ${format(this.cost())} 元性质`
             },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
+                if(!hasAchievement('overflow',11)) player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            unlocked(){return true},
+            abtick:0,
+            abdelay(){return hasAchievement('overflow',14)?0:1.79e308},
         },
         14: {
             cost(x = getBuyableAmount('m',this.id)) { 
@@ -186,9 +202,12 @@ addLayer("m", {
                     价格: ${format(this.cost())} 元性质`
             },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
+                if(!hasAchievement('overflow',11)) player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            unlocked(){return true},
+            abtick:0,
+            abdelay(){return hasAchievement('overflow',14)?0:1.79e308},
         },
         21: {
             cost(x = getBuyableAmount('m',this.id)) { 
@@ -213,9 +232,12 @@ addLayer("m", {
                     价格: ${format(this.cost())} 元性质`
             },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
+                if(!hasAchievement('overflow',11)) player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            unlocked(){return true},
+            abtick:0,
+            abdelay(){return hasAchievement('overflow',14)?0:1.79e308},
         },
         22: {
             cost(x = getBuyableAmount('m',this.id)) { 
@@ -241,9 +263,12 @@ addLayer("m", {
                     价格: ${format(this.cost())} 元性质`
             },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
+                if(!hasAchievement('overflow',11)) player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            unlocked(){return true},
+            abtick:0,
+            abdelay(){return hasAchievement('overflow',14)?0:1.79e308},
         },
         23: {
             cost(x = getBuyableAmount('m',this.id)) { 
@@ -275,10 +300,14 @@ addLayer("m", {
                     价格: ${format(this.cost())} 元性质`
             },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
+              if(getBuyableAmount(this.layer,this.id).gte(this.purchaseLimit())) return
+                if(!hasAchievement('overflow',11)) player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
             purchaseLimit(){return n(4).add(layers.mm.effect1())},
+            unlocked(){return true},
+            abtick:0,
+            abdelay(){return hasAchievement('overflow',14)?0:1.79e308},
         },
         24: {
             cost(x = getBuyableAmount('m',this.id)) { 
@@ -302,25 +331,33 @@ addLayer("m", {
             display() {
                 return `基于时间和加速子强度加成元化元.<br>
                 + ${format(this.effect())}元化元等级. (下一级${format(this.effect(getBuyableAmount('m',this.id).add(1)))})<br>
-                    等级:${format(player.m.buyables[this.id])}${this.extraLevel().eq(0)?'':` (+${format(this.extraLevel())})`}<br>
+                    等级:${format(player.m.buyables[this.id])}/${this.purchaseLimit()}${this.extraLevel().eq(0)?'':` (+${format(this.extraLevel())})`}<br>
                     价格: ${format(this.cost())} 元性质`
             },
             buy() {
-                player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
+              if(getBuyableAmount(this.layer,this.id).gte(this.purchaseLimit())) return
+                if(!hasAchievement('overflow',11)) player[this.layer].points = player[this.layer].points.sub(this.cost()).max(0)
                 setBuyableAmount(this.layer, this.id, getBuyableAmount(this.layer, this.id).add(1))
             },
+            purchaseLimit(){return n(3)},
+            unlocked(){return true},
+            abtick:0,
+            abdelay(){return hasAchievement('overflow',14)?0:1.79e308},
         },
     },
     passiveGeneration(){
       if(hasUpgrade('mm',22)) return 0.1
+      if(hasAchievement('overflow',11)) return 0.01
       return 0
     },
     doReset(layer){
       player.m.time = n(0)
-      if(layers[layer].row > this.row) layerDataReset('m',[])
+      if(layers[layer].row > 1) layerDataReset('m',['c11'])
+      if(layers[layer].row > 2) layerDataReset('m',[])
     },
     maxValue(){
       var max = n(6.8e38)
+      if(hasAchievement('overflow',13)) max = max.mul(achievementEffect('overflow',13))
       //if(player.mm.total.gte(5)) max = n('1.8e308')
       return max
     },
@@ -328,10 +365,41 @@ addLayer("m", {
     update(diff){
      player.m.points = this.maxValue().min(player.m.points)
       var timespeed = n(1)
-      timespeed = timespeed.mul(buyableEffect('m',12))
+      if(!inChallenge('dim',11)) timespeed = timespeed.mul(buyableEffect('m',12))
       if(hasUpgrade('mm',11)) timespeed = timespeed.mul(upgradeEffect('mm',11))
       if(hasUpgrade('mm',31)) timespeed = timespeed.mul(upgradeEffect('mm',31))
+      
+      if(inChallenge('m',11)) timespeed = timespeed.root(8)
       player.m.time = player.m.time.add(timespeed.mul(diff))
       player.m.buyableCostRoot = this.buyableCostRoot()
+      
+      if(player[this.layer].activeChallenge != null){
+        player[this.layer]['c'+player[this.layer].activeChallenge] = player[this.layer]['c'+player[this.layer].activeChallenge].max(layers[this.layer].challenges[player[this.layer].activeChallenge].resource())
+      }
+      
+      for(row=1;row<=2;row++){       
+      for(col=1;col<=4;col++){ 
+      if(layers[this.layer].buyables[row*10+col]){            
+        layers[this.layer].buyables[row*10+col].abtick += diff
+        if(layers[this.layer].buyables[row*10+col].abtick >= layers[this.layer].buyables[row*10+col].abdelay() && layers[this.layer].buyables[row*10+col].unlocked() && layers[this.layer].buyables[row*10+col].canAfford()){
+          layers[this.layer].buyables[row*10+col].buy()
+          layers[this.layer].buyables[row*10+col].abtick = 0
+            } 
+          }        
+        }    
+      }
+      
+    },
+    challenges:{
+      11:{
+        name:'时间奇点',
+        challengeDescription:'时间速率变为其8次根.你基于挑战中取得的最高点数获得加成.',
+        rewardDescription(){return `当前最高${format(getCP('m',11))},元性质x${format(this.rewardEffect())}`},
+        rewardEffect(){return expRoot(getCP('m',11).add(10).slog(10).root(18),1.33)},
+        goal:n('10{3}3'),
+        canComplete(){return false},
+        resource(){return player.points},
+        unlocked(){return hasAchievement('overflow',11)},
+      },
     },
 })
