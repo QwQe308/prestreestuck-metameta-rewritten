@@ -1,5 +1,5 @@
 let modInfo = {
-	name: "prestreestuck_metameta_rewritten",
+	name: "元元树-创世树元元重写",
 	id: "prestreestuck_metameta_rewritten",
 	author: "QwQe308",
 	pointsName: "点数",
@@ -12,16 +12,15 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.0",
+	num: "0.1",
 	name: "",
 }
 
-let changelog = `<h1>Changelog:</h1><br>
-	<h3>v0.0</h3><br>
-		- Added things.<br>
-		- Added stuff.`
+let changelog = `<h1>更新记录(时不时懒得写):</h1><br>
+	<h3>v0.1</h3><br>
+		- 制作超限节点.当前endgame:2超限.之前的更新记录全懒得写了.`
 
-let winText = `Congratulations! You have reached the end and beaten this game, but for now...`
+let winText = `恭喜通关!`
 
 // If you add new functions anywhere inside of a layer, and those functions have an effect when called, add them here.
 // (The ones here are examples, all official functions are already taken care of)
@@ -51,12 +50,12 @@ function addedPlayerData() { return {
 var displayThings = [
   function(){return `t = ${format(player.m.time)}`},
   function(){return `当前元性质上限: ${format(layers.m.maxValue())}`},
-    function(){return `当前endgame: 4元元`},
+    function(){return `当前endgame: 2超限`},
 ]
 
 // Determines when the game "ends"
 function isEndgame() {
-	return player.mm.total.gte(3)
+	return player.overflow.total.gte(2)
 }
 
 

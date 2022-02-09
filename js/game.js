@@ -165,7 +165,7 @@ function layerDataReset(layer, keep = []) {
 	if (layers[layer].clickables && !player[layer].clickables) 
 		player[layer].clickables = getStartClickables(layer)
 	for (thing in storedData) {
-		player[layer][thing] =storedData[thing]
+		player[layer][thing] = storedData[thing]
 	}
 }
 

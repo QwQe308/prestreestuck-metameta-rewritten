@@ -1,3 +1,6 @@
+function getCP(layer,id){
+  return player[layer]['c'+id]
+}
 //快捷调用+提高运算速度
 var zero = new OmegaNum(0)
 var one = new OmegaNum(1)
