@@ -11,12 +11,12 @@ addLayer("overflow", {
     getResetGain() {
         var mult = this.gainMult()
         var pow = this.gainExp()
-        return player.points.add(10).slog(10).div(this.requires()).root(308).pow(pow).floor().mul(mult).floor()
+        return player.points.add(10).slog(10).div(this.requires().slog(10)).root(308).pow(pow).floor().mul(mult).floor()
     },
     getNextAt() {
         var mult = this.gainMult()
         var pow = this.gainExp()
-        return ten.tetr(this.getResetGain().add(1).div(mult).root(pow).pow(308).mul(this.requires())).sub(10)
+        return ten.tetr(this.getResetGain().add(1).div(mult).root(pow).pow(308).mul(this.requires().slog(10))).sub(10)
     },
     effect1(){
       var root = n(2).pow(player.overflow.total.add(1).pow(0.6).sub(1))
@@ -34,7 +34,7 @@ addLayer("overflow", {
     type: "custom", // normal: cost to gain currency depends on amount gained. static: cost depends on how much you already have
     requires(){
       //if(player.mm.total.gte(5)) return n('1.8e308')
-      return n(1.79e308)
+      return n('10{2}1.8e308')
     },
     baseResource:"点数",
     baseAmount(){return player.points},
