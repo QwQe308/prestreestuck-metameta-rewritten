@@ -187,7 +187,7 @@ addLayer("mm", {
         },
         goal(){return layers.mm.requires().pow(player.mm.total.div(33).add(1).pow(1.2))},
         canComplete(){return player.m.points.gte(this.goal())},
-        unlocked(){return hasAchievement('overflow',11)},
+        unlocked(){return hasAchievement('overflow',24)},
         onExit(){
           if(this.canComplete())player.mm.c11 = player.mm.c11.max(player.mm.total)
         },
