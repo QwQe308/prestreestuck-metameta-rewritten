@@ -7,7 +7,9 @@ addLayer("m", {
 		    points: new ExpantaNum(0),
 		    time: n(0),
 		    buyableCostRoot: n(1),
-		    c11: n(0)
+		    holdTick:0,
+		    holdDelay:0,
+		    c11: n(0),
     }},
     prestigeButtonText() { 
         return "飞升以获得 <b>+" + formatWhole(this.getResetGain()) + "</b> 元性质" + ((this.getResetGain().gte(1000)) ? "" : ("<br/>下一个于 " + format(this.getNextAt()) + " 点数"))
@@ -56,6 +58,7 @@ addLayer("m", {
         mult = mult.mul(layers.dim.effect())
         if(hasAchievement('overflow',11)) mult = mult.mul(10)
         mult = mult.mul(challengeEffect('m',11))
+        mult = mult.mul(getEXPeff('meta'))
         return mult
     },
     gainExp() {
@@ -76,7 +79,22 @@ addLayer("m", {
         11: {
             canClick(){return true},
             display() {return `手机端qol<br>长按以重置`},
-            onHold(){doReset(this.layer)}
+            onHold(){
+              player.m.holdTick++
+              if(player.m.holdTick>=player.m.holdDelay){
+                doReset(this.layer)
+                player.m.holdTick = 0
+              }
+            }
+        },
+        12: {
+            canClick(){return true},
+            display() {return `设置长按重置的间隔<br>当前间隔:${player.m.holdDelay}帧`},
+            onClick(){
+              var input = n(prompt('请输入你想要的间隔帧数.(1帧≈0.05秒)'))
+              if(!input.isNaN) return
+              player.m.holdDelay = input.toNumber()
+            }
         },
     },
     buyableCostRoot(){
@@ -352,8 +370,11 @@ addLayer("m", {
     },
     doReset(layer){
       player.m.time = n(0)
-      if(layers[layer].row > 1) layerDataReset('m',['c11'])
-      if(layers[layer].row > 2) layerDataReset('m',[])
+      if(layers[layer].row > 1) layerDataReset('m',['holdDelay','c11'])
+      if(layers[layer].row > 2) layerDataReset('m',['holdDelay'])
+    },
+    onPrestige(gain){
+      giveEXP('meta',gain)
     },
     maxValue(){
       var max = n(6.8e38)
@@ -368,6 +389,7 @@ addLayer("m", {
       if(!inChallenge('dim',11)) timespeed = timespeed.mul(buyableEffect('m',12))
       if(hasUpgrade('mm',11)) timespeed = timespeed.mul(upgradeEffect('mm',11))
       if(hasUpgrade('mm',31)) timespeed = timespeed.mul(upgradeEffect('mm',31))
+      timespeed = timespeed.mul(getEXPeff('time'))
       
       if(inChallenge('m',11)) timespeed = timespeed.root(8)
       player.m.time = player.m.time.add(timespeed.mul(diff))
@@ -395,9 +417,13 @@ addLayer("m", {
         name:'时间奇点',
         challengeDescription:'时间速率变为其8次根.你基于挑战中取得的最高点数获得加成.',
         rewardDescription(){return `当前最高${format(getCP('m',11))},元性质x${format(this.rewardEffect())}`},
-        rewardEffect(){return expRoot(getCP('m',11).add(10).slog(10).root(18),1.33)},
-        goal:n('10{3}3'),
-        canComplete(){return false},
+        rewardEffect(){
+          var eff = expPow(getCP('m',11).add(10).slog(10).root(15),1.25)
+          if(hasAchievement('overflow',24)) eff = eff.pow(achievementEffect('overflow',24))
+          return eff
+        },
+        goal:zero,
+        canComplete(){return true},
         resource(){return player.points},
         unlocked(){return hasAchievement('overflow',11)},
       },

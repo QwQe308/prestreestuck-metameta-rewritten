@@ -12,11 +12,13 @@ let modInfo = {
 
 // Set your version in num and name
 let VERSION = {
-	num: "0.1",
+	num: "0.11",
 	name: "",
 }
 
 let changelog = `<h1>更新记录(时不时懒得写):</h1><br>
+	<h3>v0.11</h3><br>
+		- 更新超限.当前endgame:3超限.<br><br>
 	<h3>v0.1</h3><br>
 		- 制作超限节点.当前endgame:2超限.之前的更新记录全懒得写了.`
 
@@ -50,7 +52,8 @@ function addedPlayerData() { return {
 var displayThings = [
   function(){return `t = ${format(player.m.time)}`},
   function(){return `当前元性质上限: ${format(layers.m.maxValue())}`},
-    function(){return `当前endgame: 2超限`},
+  function(){return `当前点数上限: F1.79e308`},
+    function(){return `当前endgame: 3超限`},
 ]
 
 // Determines when the game "ends"
@@ -64,7 +67,7 @@ function isEndgame() {
 
 // You can change this if you have things that can be messed up by long tick lengths
 function maxTickLength() {
-	return(3600) // Default is 1 hour which is just arbitrarily large
+	return(360) // Default is 1 hour which is just arbitrarily large
 }
 
 // Use this if you need to undo inflation from an older version. If the version is older than the version that fixed the issue,

@@ -13,6 +13,7 @@ addLayer("dim", {
     }},
     addontionalDim(x = player.mm.points){
       var dim = x.add(4)
+      if(hasAchievement("overflow",25)) dim = dim.add(achievementEffect("overflow",25))
       return dim
     },
     getDimMult(x){
@@ -64,7 +65,7 @@ addLayer("dim", {
         player.dim.currentMM = player.mm.points
       } 
       if(!this.layerShown()) return
-      var maxDim = this.addontionalDim().max(4).toNumber()
+      var maxDim = this.addontionalDim().max(4).min(8).toNumber()
       
       var maxDimProcSpeed = one
       if(hasAchievement('overflow',12)) maxDimProcSpeed = maxDimProcSpeed.mul(player.dim.num[1].add(10).log10())
@@ -85,10 +86,10 @@ addLayer("dim", {
       11:{
         name:'时间膨胀',
         challengeDescription:'元性质数量归零(可以重新获得),时间浓缩失效.*进入弦挑战保留你当前弦维度数量!',
-        rewardDescription(){return `当前最高${format(getCP(this.layer,11))},元元升级11底数x${format(this.rewardEffect())}`},
-        rewardEffect(){return expRoot(getCP(this.layer,11).div(1e80).add(1).root(49),1.5)},
-        goal:n('10{3}3'),
-        canComplete(){return false},
+        rewardDescription(){return `当前最高${format(getCP(this.layer,11))}弦,元元升级11底数x${format(this.rewardEffect())}`},
+        rewardEffect(){return expRoot(getCP(this.layer,11).div(1e80).add(1).root(49),1.6)},
+        goal:zero,
+        canComplete(){return true},
         onEnter(){player.m.points = zero;player.points = zero;player.m.time = zero;player.dim.points = zero;player.m.resetTime=0},
         resource(){return player.dim.points},
         unlocked(){return hasAchievement('overflow',12)},

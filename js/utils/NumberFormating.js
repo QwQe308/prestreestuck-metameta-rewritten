@@ -43,7 +43,8 @@ function format(decimal, precision = 2, small=false) {
     decimal = new ExpantaNum(decimal)
     let fmt = decimal.toString()
     if(decimal.isNaN()) console.error('NaN!')
-    if(decimal.eq(0))return "0"
+    if(decimal.lt(0)) return '-'+format(decimal.mul(-1),precision,small)
+    if(decimal.eq(0)) return "0"
     /*
     if(decimal.lt("0.0001")){
       return format(decimal.rec(), precision) + "⁻¹"

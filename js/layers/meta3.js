@@ -5,6 +5,7 @@ addLayer("mm", {
     startData() { return {
         unlocked: false,
 		    points: new ExpantaNum(0),
+		    c11: n(0)
     }},
     prestigeButtonText() { 
         return "超越以获得 <b>+" + formatWhole(this.getResetGain()) + `</b> 元元(总计元元:${formatWhole(player.mm.total)})` + ((this.getResetGain().gte(1000)) ? "" : ("<br/>下一个于 " + format(this.getNextAt()) + " 元性质"))
@@ -12,12 +13,14 @@ addLayer("mm", {
     getResetGain() {
         var mult = this.gainMult()
         var pow = this.gainExp()
-        return player.m.points.div(this.requires()).root(38).pow(pow).floor().mul(mult).floor()
+        if(player.m.points.div(this.requires()).gte(1)) return expRoot(player.m.points.div(this.requires()),n(1.8)).root(18).pow(pow).floor().mul(mult).floor()
+        return player.m.points.div(this.requires()).root(25).pow(pow).floor().mul(mult).floor()
     },
     getNextAt() {
         var mult = this.gainMult()
         var pow = this.gainExp()
-        return this.getResetGain().add(1).div(mult).root(pow).pow(38).mul(this.requires())
+        if(this.getResetGain().gte(1)) return expPow(this.getResetGain().add(1).div(mult).root(pow).pow(18),n(1.8)).mul(this.requires())
+        return this.getResetGain().add(1).div(mult).root(pow).pow(25).mul(this.requires())
     },
     effect1(){
       var maxLevel = player.mm.total
@@ -34,9 +37,9 @@ addLayer("mm", {
     },
     effect4(){
       //return n(1)
+      if(hasAchievement('overflow',13)) return n(1.06)
       if(player.mm.total.lt(5)) return n(1)
       var er = n(1.5).pow(player.mm.total.sub(3).root(5).sub(1))
-      if(hasAchievement('overflow',13)) er = n(1.06)
       return er
     },
     effectDescription() {
@@ -172,5 +175,23 @@ addLayer("mm", {
             cost: n(2),
             unlocked() { return hasUpgrade(this.layer,22) || hasUpgrade(this.layer, this.id) },
         },
+    },
+    challenges:{
+      11:{
+        name:'元超限',
+        challengeDescription:'达到指定元性质.元元挑战必须在大于0元元时完成.在更高元元完成可以获得更好的奖励.',
+        rewardDescription(){return `当前最高在${format(getCP('mm',11))}元元完成,超限成就13效果^${format(this.rewardEffect())},成就24效果+${format(this.rewardEffect().sub(1))}.`},
+        rewardEffect(){
+          var eff = getCP('mm',11).add(1).cbrt()
+          return eff
+        },
+        goal(){return layers.mm.requires().pow(player.mm.total.div(33).add(1).pow(1.2))},
+        canComplete(){return player.m.points.gte(this.goal())},
+        unlocked(){return hasAchievement('overflow',11)},
+        onExit(){
+          if(this.canComplete())player.mm.c11 = player.mm.c11.max(player.mm.total)
+        },
+        currencyDisplayName:'元性质'
+      },
     },
 })

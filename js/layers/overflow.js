@@ -1,5 +1,5 @@
 addLayer("overflow", {
-    symbol: "+1",
+    symbol: "∞↑",
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: false,
@@ -85,13 +85,66 @@ addLayer("overflow", {
         tooltip:'一次重置可以获得e50元性质.<br>奖励:重置获得的元性质与元元总数以极弱的形式加成元性质上限.元元的指数开根锁死于1.06.',
         done(){return layers.m.getResetGain().gte(1e50) && this.unlocked()},
         unlocked(){return hasAchievement('overflow',11)},
-        effect(){return expRoot(player.m.total.div(6.8e38).add(1).root(25).pow(expRoot(player.mm.total.add(1).pow(1.6).add(10),1.33).sub(10)),1.33)},
+        effect(){
+          var eff = expRoot(player.m.total.div(6.8e38).add(1).root(18).pow(expRoot(player.mm.total.add(2).pow(1.8).add(10),1.4).sub(10)),1.2)
+          eff = eff.pow(challengeEffect('mm',11))
+          return eff
+        },
       },
       14:{
         name:'打破诅咒',
         tooltip:'完成第六元元.<br>奖励:自动化元性质购买项.',
         done(){return player.mm.total.gt(6) && this.unlocked()},
         unlocked(){return hasAchievement('overflow',11)},
+      },
+      21:{
+        name:'轮回',
+        tooltip:'获得2超限.<br>奖励:解锁经验.',
+        done(){return player.overflow.total.gte(2) && this.unlocked()},
+        unlocked(){return hasAchievement('overflow',11)},
+      },
+      22:{
+        name:'又一次?',
+        tooltip:'获得1元元.<br>奖励:每秒获取10%的元exp.',
+        done(){return player.mm.total.gte(1) && this.unlocked()},
+        unlocked(){return hasAchievement('overflow',21)},
+      },
+      23:{
+        name:'Level UP!',
+        tooltip(){return `经验等级达到25.<br>奖励:超限和元元以一定程度增幅经验系数.(x${format(this.effect())})`},
+        done(){return getLevel('exp').gte(25) && this.unlocked()},
+        unlocked(){return hasAchievement('overflow',21)},
+        effect(){
+          var eff = player.overflow.total.div(8).add(1).mul(player.mm.total.div(50).add(1)).pow(1.2)
+          return eff
+        },
+      },
+      24:{
+        name:'元元化元元',
+        tooltip(){return `获得3元元.<br>奖励:超限和元元加成元性质挑战11.(^${format(this.effect())}) 解锁元元挑战11.`},
+        done(){return player.mm.total.gte(3) && this.unlocked()},
+        unlocked(){return hasAchievement('overflow',21)},
+        effect(){
+          var eff = player.overflow.total.div(1.5).add(player.mm.total.add(1).sqrt())
+          eff = eff.add(challengeEffect('mm',11).sub(1))
+          return eff
+        },
+      },
+      25:{
+        name:'弦无限',
+        tooltip(){return `获得1.80e308弦.<br>奖励:每2个元元的完全平方给予一个额外弦维度.(1,4,9,16...)(+${format(this.effect())})`},
+        done(){return player.dim.points.gte(2) && this.unlocked()},
+        unlocked(){return hasAchievement('overflow',21)},
+        effect(){
+          var eff = player.mm.total.sqrt().div(2).floor()
+          return eff
+        },
+      },
+      26:{
+        name:'元性质超限+',
+        tooltip(){return `一次性可获得2元元.<br>奖励:???.`},
+        done(){return getResetGain("mm").gte(2) && this.unlocked()},
+        unlocked(){return hasAchievement('overflow',21)},
       },
     },
     /*upgrades:{
