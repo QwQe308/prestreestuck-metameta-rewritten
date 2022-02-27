@@ -18,7 +18,9 @@ addLayer("m", {
         var mult = this.gainMult()
         var pow = this.gainExp()
         //slg(x/2+1)^0.4
-        return expRoot(player.points.div(2).add(1).slog(10).pow(0.4).pow(pow).mul(mult).add(10),this.gainExpRoot()).sub(10).root(layers.mm.effect2()).floor()
+        var gain = expRoot(player.points.div(2).add(1).slog(10).pow(0.4).pow(pow).mul(mult).add(10),this.gainExpRoot()).sub(10).root(layers.mm.effect2()).floor()
+        if(hasAchievement('overflow',21)) gain = expRoot(gain.add(1),1.1).sub(1)
+        return gain
     },
     getNextAt() {
         var mult = this.gainMult()
@@ -59,6 +61,8 @@ addLayer("m", {
         if(hasAchievement('overflow',11)) mult = mult.mul(10)
         mult = mult.mul(challengeEffect('m',11))
         mult = mult.mul(getEXPeff('meta'))
+        if(hasAchievement('overflow',32)) mult = mult.mul(player.i.points.add(1))
+        
         return mult
     },
     gainExp() {
@@ -203,7 +207,9 @@ addLayer("m", {
             },
             effect(x = getBuyableAmount('m',this.id)) {
               x = x.add(this.extraLevel())
-              return x.mul(1.5).add(1).root(5) },
+              var eff = x.mul(1.5).add(1).root(5)
+              eff = eff.pow(buyableEffect('i',23))
+              return eff},
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             title() {
                 return "元性质增幅器"
@@ -263,7 +269,9 @@ addLayer("m", {
             },
             effect(x = getBuyableAmount('m',this.id)) {
               x = x.add(this.extraLevel())
-              return n(player.m.resetTime).add(1).pow(x.add(1).root(5).sub(1).div(6)) },
+              var time = n(player.m.resetTime)
+              if(hasAchievement('overflow',31)) time = n(player.mm.resetTime)
+              return time.add(1).pow(x.add(1).root(5).sub(1).div(6)) },
             canAfford() { return player[this.layer].points.gte(this.cost()) },
             title() {
                 return "加速子"
@@ -390,6 +398,7 @@ addLayer("m", {
       if(hasUpgrade('mm',11)) timespeed = timespeed.mul(upgradeEffect('mm',11))
       if(hasUpgrade('mm',31)) timespeed = timespeed.mul(upgradeEffect('mm',31))
       timespeed = timespeed.mul(getEXPeff('time'))
+      timespeed = expRootSoftcap(timespeed,n(1.79e308),2)
       
       if(inChallenge('m',11)) timespeed = timespeed.root(8)
       player.m.time = player.m.time.add(timespeed.mul(diff))
@@ -418,11 +427,11 @@ addLayer("m", {
         challengeDescription:'时间速率变为其8次根.你基于挑战中取得的最高点数获得加成.',
         rewardDescription(){return `当前最高${format(getCP('m',11))},元性质x${format(this.rewardEffect())}`},
         rewardEffect(){
-          var eff = expPow(getCP('m',11).add(10).slog(10).root(15),1.25)
+          var eff = expRoot(getCP('m',11).add(10).slog(10).root(9),1.2)
           if(hasAchievement('overflow',24)) eff = eff.pow(achievementEffect('overflow',24))
           return eff
         },
-        goal:zero,
+        goal:n(0),
         canComplete(){return true},
         resource(){return player.points},
         unlocked(){return hasAchievement('overflow',11)},

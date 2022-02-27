@@ -5,7 +5,8 @@ addLayer("mm", {
     startData() { return {
         unlocked: false,
 		    points: new ExpantaNum(0),
-		    c11: n(0)
+		    time:n(0),
+		    c11: n(0),
     }},
     prestigeButtonText() { 
         return "超越以获得 <b>+" + formatWhole(this.getResetGain()) + `</b> 元元(总计元元:${formatWhole(player.mm.total)})` + ((this.getResetGain().gte(1000)) ? "" : ("<br/>下一个于 " + format(this.getNextAt()) + " 元性质"))
@@ -13,14 +14,12 @@ addLayer("mm", {
     getResetGain() {
         var mult = this.gainMult()
         var pow = this.gainExp()
-        if(player.m.points.div(this.requires()).gte(1)) return expRoot(player.m.points.div(this.requires()),n(1.8)).root(18).pow(pow).floor().mul(mult).floor()
-        return player.m.points.div(this.requires()).root(25).pow(pow).floor().mul(mult).floor()
+        return player.m.points.div(this.requires()).root(20).pow(pow).floor().mul(mult).floor()
     },
     getNextAt() {
         var mult = this.gainMult()
         var pow = this.gainExp()
-        if(this.getResetGain().gte(1)) return expPow(this.getResetGain().add(1).div(mult).root(pow).pow(18),n(1.8)).mul(this.requires())
-        return this.getResetGain().add(1).div(mult).root(pow).pow(25).mul(this.requires())
+        return this.getResetGain().add(1).div(mult).root(pow).pow(20).mul(this.requires())
     },
     effect1(){
       var maxLevel = player.mm.total
@@ -37,6 +36,8 @@ addLayer("mm", {
     },
     effect4(){
       //return n(1)
+      if(hasAchievement('overflow',31) && player.mm.total.gte(4)) return n(1.12).mul(n(1.5).pow(player.mm.total.sub(2).root(5).sub(1)))
+      if(hasAchievement('overflow',31)) return n(1.12)
       if(hasAchievement('overflow',13)) return n(1.06)
       if(player.mm.total.lt(5)) return n(1)
       var er = n(1.5).pow(player.mm.total.sub(3).root(5).sub(1))
@@ -44,7 +45,7 @@ addLayer("mm", {
     },
     effectDescription() {
         return `<br>元化元等级上限+ ${format(this.effect1())}.<br>元性质变为其 ${format(this.effect2())} 次根 <br>时间浓缩等级上限+ ${format(this.effect3())}
-          ${this.effect4().eq(1)?'':`<br>元性质的指数变为其 ${format(this.effect4())} 次根(先于开根)`}`
+          ${this.effect4().eq(1)?'':`<br>元性质的指数变为其 ${format(this.effect4(),3)} 次根(先于开根)`}`
     },
     color: "#31aeb0",
     resource: "元元", // Name of prestige currency
@@ -88,7 +89,9 @@ addLayer("mm", {
             display() {return `减少元元`},
             onClick(){
               if(!confirm('您确定要减少元元么?这会进行一次超越,并重置你的升级!这对你的进度可能没有任何作用!')) return
-              var toKeep = new OmegaNum(prompt('请输入您要保留的元元数.(自动向下取整)'))
+              var toKeep = prompt('请输入您要保留的元元数.(自动向下取整)')
+              if(toKeep == null) return
+              toKeep = new OmegaNum(toKeep)
               if(toKeep.isNaN()){
                 alert('不能输入一个格式错误的数字!')
                 return
@@ -179,13 +182,13 @@ addLayer("mm", {
     challenges:{
       11:{
         name:'元超限',
-        challengeDescription:'达到指定元性质.元元挑战必须在大于0元元时完成.在更高元元完成可以获得更好的奖励.',
+        challengeDescription:'达到指定元性质.元元挑战只有在完成后才能获得奖励.在更高元元完成可以获得更好的奖励.',
         rewardDescription(){return `当前最高在${format(getCP('mm',11))}元元完成,超限成就13效果^${format(this.rewardEffect())},成就24效果+${format(this.rewardEffect().sub(1))}.`},
         rewardEffect(){
-          var eff = getCP('mm',11).add(1).cbrt()
+          var eff = getCP('mm',11).add(2).cbrt()
           return eff
         },
-        goal(){return layers.mm.requires().pow(player.mm.total.div(33).add(1).pow(1.2))},
+        goal(){return layers.mm.requires().pow(player.mm.total.div(33).add(1.03).pow(1.2))},
         canComplete(){return player.m.points.gte(this.goal())},
         unlocked(){return hasAchievement('overflow',24)},
         onExit(){

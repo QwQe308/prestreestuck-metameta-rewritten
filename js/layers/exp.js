@@ -66,7 +66,7 @@ addLayer("exp", {
             progress() { return player.exp[this.id].sub(this.getNextAt(this.level())).div(this.getNextAt().sub(this.getNextAt(this.level()))) },
             display(){return `时间(^) - 时间速率x${format(this.effect())} (下一级:${format(this.effect(this.level().add(1)))}) 等级:${format(this.level())} <br> 经验: ${format(player.exp[this.id].sub(this.getNextAt(this.level())))} / ${format(this.getNextAt().sub(this.getNextAt(this.level())))} (${format(this.progress().mul(100))}%) &nbsp + ${format(this.gain())}/s${this.base()}`},
             effect(level = this.level()){
-                var eff = two.pow(level.pow(1.25))
+                var eff = two.pow(level.pow(1.33))
                 return eff
             },
             textStyle: {"color": "red"},
@@ -80,7 +80,7 @@ addLayer("exp", {
                 return req
             },
             gain(){
-                var gain = player.m.time.add(1).log10().pow(1.2)
+                var gain = expPow(player.m.time.add(10).log10(),1.25).pow(1.25).sub(1)
                 gain = gain.pow(getEXPfactor())
                 return gain
             },
@@ -95,21 +95,21 @@ addLayer("exp", {
             progress() { return player.exp[this.id].sub(this.getNextAt(this.level())).div(this.getNextAt().sub(this.getNextAt(this.level()))) },
             display(){return `元(^) - 元性质x${format(this.effect())} (下一级:${format(this.effect(this.level().add(1)))}) 等级:${format(this.level())} <br> 经验: ${format(player.exp[this.id].sub(this.getNextAt(this.level())))} / ${format(this.getNextAt().sub(this.getNextAt(this.level())))} (${format(this.progress().mul(100))}%) &nbsp + ${format(this.gain(false))}${this.base()}`},
             effect(level = this.level()){
-                var eff = n(1.5).pow(level.pow(1.33))
+                var eff = n(1.6).pow(level.pow(1.4))
                 return eff
             },
             textStyle: {"color": "red"},
 			fillStyle: {"background-color": "lime"},
             level(){
-                var lv = player.exp[this.id].div(100).add(1).log10().mul(6).floor()
+                var lv = player.exp[this.id].div(100).add(1).log10().mul(8).floor()
                 return lv
             },
             getNextAt(lv = this.level().add(1)){
-                var req = ten.pow(lv.div(6)).sub(1).mul(100)
+                var req = ten.pow(lv.div(8)).sub(1).mul(100)
                 return req
             },
             gain(auto = true,gain = getResetGain('m')){
-                var gain = expPow(gain.add(1).log10().mul(4).add(10),n(1.5)).sub(10).div(5).root(1.75)
+                var gain = expPow(gain.add(1).log10().mul(4).add(10),n(1.8)).sub(10).div(4).root(2)
                 gain = gain.pow(getEXPfactor())
                 if(auto) gain = gain.mul(hasAchievement('overflow',22)?0.1:0)
                 return gain

@@ -4,6 +4,7 @@ addLayer("overflow", {
     startData() { return {
         unlocked: false,
 		    points: new ExpantaNum(0),
+		    time: n(0),
     }},
     prestigeButtonText() { 
         return "强行让点数增量以获得 <b>+" + formatWhole(this.getResetGain()) + `</b> 超限(总计超限:${formatWhole(player.overflow.total)})` + ((this.getResetGain().gte(1000)) ? "" : ("<br/>下一个于 " + format(this.getNextAt()) + " 点数"))
@@ -71,12 +72,12 @@ addLayer("overflow", {
       11:{
         name:'新的起点',
         tooltip:'获得1超限.<br>奖励:你每秒获得1%的元性质.元性质x10.购买元性质购买项不再消耗元性质.解锁元性质挑战11.(元性质挑战不被元元重置)',
-        done(){return player.overflow.total.gte(1) && this.unlocked()},
+        done(){return player.overflow.total.gte(1)&& player.overflow.resetTime>1 && this.unlocked()},
         unlocked(){return true},
       },
       12:{
         name:'弦?',
-        tooltip:'获得1e180弦.<br>奖励:解锁弦挑战11.(未解锁仍生效,不被元元重置) 最高弦维度生产速度被弦一维数量的对数倍增.',
+        tooltip:'获得1e180弦.<br>奖励:解锁弦挑战11.(未解锁仍生效,不被元元重置) 最高弦维度生产速度基于弦一维数量的对数增加.',
         done(){return player.dim.points.gte(1e180) && this.unlocked()},
         unlocked(){return hasAchievement('overflow',11)},
       },
@@ -86,8 +87,8 @@ addLayer("overflow", {
         done(){return layers.m.getResetGain().gte(1e50) && this.unlocked()},
         unlocked(){return hasAchievement('overflow',11)},
         effect(){
-          var eff = expRoot(player.m.total.div(6.8e38).add(1).root(18).pow(expRoot(player.mm.total.add(2).pow(1.8).add(10),1.4).sub(10)),1.2)
-          eff = eff.pow(challengeEffect('mm',11))
+          var eff = expPow(player.m.total.div(6.8e38).add(10).log10(),1.5).pow(player.mm.total.add(1).log10().add(1).pow(2))
+          if(hasChallenge('mm',11)) eff = eff.pow(challengeEffect('mm',11))
           return eff
         },
       },
@@ -99,8 +100,8 @@ addLayer("overflow", {
       },
       21:{
         name:'轮回',
-        tooltip:'获得2超限.<br>奖励:解锁经验.',
-        done(){return player.overflow.total.gte(2) && this.unlocked()},
+        tooltip:'获得2超限.<br>奖励:解锁经验.元性质指数变为其1.1次根(元元开根后)',
+        done(){return player.overflow.total.gte(2) && player.overflow.resetTime>1 && this.unlocked()},
         unlocked(){return hasAchievement('overflow',11)},
       },
       22:{
@@ -115,7 +116,7 @@ addLayer("overflow", {
         done(){return getLevel('exp').gte(25) && this.unlocked()},
         unlocked(){return hasAchievement('overflow',21)},
         effect(){
-          var eff = player.overflow.total.div(8).add(1).mul(player.mm.total.div(50).add(1)).pow(1.2)
+          var eff = player.overflow.total.div(8).mul(player.mm.total.mul(2.25).add(10).log10().pow(2)).add(1).pow(1.2)
           return eff
         },
       },
@@ -126,26 +127,24 @@ addLayer("overflow", {
         unlocked(){return hasAchievement('overflow',21)},
         effect(){
           var eff = player.overflow.total.div(1.5).add(player.mm.total.add(1).sqrt())
-          eff = eff.add(challengeEffect('mm',11).sub(1))
+          if(hasChallenge('mm',11)) eff = eff.add(challengeEffect('mm',11).sub(1))
+          eff = eff.div(2).add(0.5)
           return eff
         },
       },
-      25:{
-        name:'弦无限',
-        tooltip(){return `获得1.80e308弦.<br>奖励:每2个元元的完全平方给予一个额外弦维度.(1,4,9,16...)(+${format(this.effect())})`},
-        done(){return player.dim.points.gte(2) && this.unlocked()},
-        unlocked(){return hasAchievement('overflow',21)},
-        effect(){
-          var eff = player.mm.total.sqrt().div(2).floor()
-          return eff
-        },
-      },
-      26:{
-        name:'元性质超限+',
-        tooltip(){return `一次性可获得2元元.<br>奖励:???.`},
-        done(){return getResetGain("mm").gte(2) && this.unlocked()},
+      31:{
+        name:'又一个放置游戏?',
+        tooltip(){return `获得3超限.<br>奖励:
+        解锁元元的指数开根并使其x1.12,第四元元即开始增长,解锁增量.加速子的时间基于当前元元的时间,而不是当前元性质的时间.`},
+        done(){return player.overflow.total.gte(3) && this.unlocked() && player.overflow.resetTime>1},
         unlocked(){return hasAchievement('overflow',21)},
       },
+      32:{
+        name:'...又一次?',
+        tooltip(){return `获得2元元.<br>奖励:增量x的平方根倍增维度倍率,增量点倍增元性质.`},
+        done(){return player.overflow.total.gte(3) && this.unlocked() && player.overflow.resetTime>1},
+        unlocked(){return hasAchievement('overflow',21)},
+      }
     },
     /*upgrades:{
         11: {
