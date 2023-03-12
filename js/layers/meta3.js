@@ -1,12 +1,12 @@
 addLayer("mm", {
-    name: "I\'m_so_METAMETA", // This is optional, only used in a few places, If absent it just uses the layer id.
-    symbol: "<img src='js/MindustryModPng_madeByMinxyzgo.png' style='width:calc(80%);height:calc(80%);margin:10%'></img>",
+    //name: "I\'m_so_METAMETA", // This is optional, only used in a few places, If absent it just uses the layer id.
+    symbol: "<img src='resources/MindustryModPng_madeByMinxyzgo.png' style='width:calc(80%);height:calc(80%);margin:10%'></img>",
     position: 0, // Horizontal position within a row. By default it uses the layer id and sorts in alphabetical order
     startData() { return {
         unlocked: false,
 		    points: new ExpantaNum(0),
 		    time:n(0),
-		    c11: n(0),
+		    c11: n(-1),
     }},
     prestigeButtonText() { 
         return "超越以获得 <b>+" + formatWhole(this.getResetGain()) + `</b> 元元(总计元元:${formatWhole(player.mm.total)})` + ((this.getResetGain().gte(1000)) ? "" : ("<br/>下一个于 " + format(this.getNextAt()) + " 元性质"))
@@ -44,7 +44,7 @@ addLayer("mm", {
       return er
     },
     effectDescription() {
-        return `<br>元化元等级上限+ ${format(this.effect1())}.<br>元性质变为其 ${format(this.effect2())} 次根 <br>时间浓缩等级上限+ ${format(this.effect3())}
+        return `本轮超限最高数量:${format(player.mm.best)}<br>元化元等级上限+ ${format(this.effect1())}.<br>元性质变为其 ${format(this.effect2())} 次根 <br>时间浓缩等级上限+ ${format(this.effect3())}
           ${this.effect4().eq(1)?'':`<br>元性质的指数变为其 ${format(this.effect4(),3)} 次根(先于开根)`}`
     },
     color: "#31aeb0",
@@ -68,6 +68,9 @@ addLayer("mm", {
     row: 2, // Row the layer is in on the tree (0 is the first row)  QwQ:1也可以当第一排
     //layerShown(){return player.v.total.gte(1)},
     unlocked(){return player.m.points.gte(6.8e38)},
+    onPrestige(gain){
+        player.mm.best = player.mm.best.max(player.mm.total.add(gain))
+    },
     clickables: {
         11: {
             canClick(){return true},
@@ -86,18 +89,18 @@ addLayer("mm", {
         },
         13: {
             canClick(){return true},
-            display() {return `减少元元`},
+            display() {return `调整元元`},
             onClick(){
-              if(!confirm('您确定要减少元元么?这会进行一次超越,并重置你的升级!这对你的进度可能没有任何作用!')) return
-              var toKeep = prompt('请输入您要保留的元元数.(自动向下取整)')
+              if(!confirm('您确定要调整元元么?这会进行一次超越,并重置你的升级!这对你的进度可能没有任何作用!')) return
+              var toKeep = prompt(`请输入您要保留的元元数.(自动向下取整) 最高元元:${format(player.mm.best)}`)
               if(toKeep == null) return
               toKeep = new OmegaNum(toKeep)
               if(toKeep.isNaN()){
                 alert('不能输入一个格式错误的数字!')
                 return
               }
-              if(toKeep.gt(player.mm.total)){
-                alert('不能输入一个大于您目前元元的数字!')
+              if(toKeep.gt(player.mm.best)){
+                alert('不能输入一个大于您最高元元的数字!')
                 return
               }
               if(toKeep.lt(0)){
@@ -114,7 +117,7 @@ addLayer("mm", {
     upgrades:{
         11: {
             title: "<p style='transform: scale(-1, -1)'><alternate>二次加速</alternate>",
-            description(){return `时间速率x${format(this.effectBase())}^加速子效果^3.解锁升级12和21.`},
+            description(){return `时间速率x${format(this.effectBase())}^加速子效果^3.时间速率xlg(本轮元元时长+10).解锁升级12和21.`},
             effectBase(){
               var base = ten
               base = base.mul(challengeEffect('dim',11))
@@ -122,7 +125,7 @@ addLayer("mm", {
             },
             effect(){
               var base = this.effectBase()
-              return base.pow(buyableEffect('m',22).pow(3))
+              return base.pow(buyableEffect('m',22).pow(3)).mul(Math.log10(player.mm.time+10))
             },
             effectDisplay(){
               return `x${format(upgradeEffect(this.layer,this.id))}`
@@ -150,7 +153,7 @@ addLayer("mm", {
         },
         22: {
             title: "<p style='transform: scale(-1, -1)'><alternate>+1+1</alternate>",
-            description: `所有元性质购买项+1级.你每秒获得10%的元性质.解锁升级13和31.`,
+            description: `所有元性质购买项+1级.你每秒获得100%的元性质.解锁升级13和31.`,
             cost: n(2),
             unlocked() { return hasUpgrade(this.layer,21) || hasUpgrade(this.layer,12) || hasUpgrade(this.layer, this.id) },
         },
@@ -183,7 +186,7 @@ addLayer("mm", {
       11:{
         name:'元超限',
         challengeDescription:'达到指定元性质.元元挑战只有在完成后才能获得奖励.在更高元元完成可以获得更好的奖励.',
-        rewardDescription(){return `当前最高在${format(getCP('mm',11))}元元完成,超限成就13效果^${format(this.rewardEffect())},成就24效果+${format(this.rewardEffect().sub(1))}.`},
+        rewardDescription(){return `当前最高在${format(getCP('mm',11))}元元完成,超限成就13效果(额外上限)^${format(this.rewardEffect())},成就24效果+${format(this.rewardEffect().sub(1))}.`},
         rewardEffect(){
           var eff = getCP('mm',11).add(2).cbrt()
           return eff

@@ -8,7 +8,7 @@ function getLevel(id){
     return layers.exp.bars[id].level()
 }
 function giveEXP(id,input = n(0)){
-  player.exp[id]=player.exp[id].add(layers.exp.bars[id].gain(false,input))
+    player.exp[id]=player.exp[id].add(layers.exp.bars[id].gain(false,input))
 }
 addLayer("exp", {
     name: "exp", // This is optional, only used in a few places, If absent it just uses the layer id.
@@ -35,6 +35,7 @@ addLayer("exp", {
             display(){return `经验(^) - 经验系数=${format(this.effect(),3)} (在不同地方有不同作用,部分标识在对应名称后) (下一级:${format(this.effect(this.level().add(1)),3)}) 等级:${format(this.level())} <br> 经验: ${format(player.exp[this.id].sub(this.getNextAt(this.level())))} / ${format(this.getNextAt().sub(this.getNextAt(this.level())))} (${format(this.progress().mul(100))}%) &nbsp + ${format(this.gain())}/s${this.base()}`},
             effect(level = this.level()){
                 var eff = level.root(1.25).div(15).add(1)
+                eff = powsoftcap(eff,n(4),1.125)
                 if(hasAchievement('overflow',23)) eff = eff.mul(achievementEffect('overflow',23))
                 return eff
             },
@@ -49,7 +50,7 @@ addLayer("exp", {
                 return req
             },
             gain(){
-                var gain = n(1)
+                var gain = n(3)
                 for(i in layers.exp.bars) if(i!="layer") gain = gain.mul(layers.exp.bars[i].level().add(1))
                 gain = gain.root(1.75)
                 gain = gain.pow(getEXPfactor())
@@ -82,7 +83,7 @@ addLayer("exp", {
             gain(){
                 var gain = expPow(player.m.time.add(10).log10(),1.25).pow(1.25).sub(1)
                 gain = gain.pow(getEXPfactor())
-                return gain
+                return gain.mul(2)
             },
             auto(){return n(1)},
             base(){return `(基于时间)`},
@@ -112,7 +113,7 @@ addLayer("exp", {
                 var gain = expPow(gain.add(1).log10().mul(4).add(10),n(1.8)).sub(10).div(4).root(2)
                 gain = gain.pow(getEXPfactor())
                 if(auto) gain = gain.mul(hasAchievement('overflow',22)?0.1:0)
-                return gain
+                return gain.mul(2)
             },
             auto(){return n(0)},
             base(){return `(基于重置获得的元性质,重置以获取)`},
